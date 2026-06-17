@@ -1,33 +1,23 @@
-const nodemailer = require("nodemailer");
-const dns = require("dns");
+const { Resend } = require("resend");
 
-// Force Node to prefer IPv4 resolution globally for this process
-dns.setDefaultResultOrder("ipv4first");
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 const sendEmail = async ({ to, subject, html }) => {
-  const transporter = nodemailer.createTransport({
-    host: "smtp.gmail.com",
-    port: 465,
-    secure: true,
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS,
-    },
-    connectionTimeout: 10000,
-    greetingTimeout: 10000,
-    socketTimeout: 10000,
-  });
-
   try {
     console.log(`Attempting to send email to ${to}...`);
-    const info = await transporter.sendMail({
-      from: `"KukrooKoo 🐓" <${process.env.EMAIL_USER}>`,
+    const result = await resend.emails.send({
+      from: "KukrooKoo <onboarding@resend.dev>",
       to,
       subject,
       html,
     });
-    console.log(`Email sent successfully: ${info.messageId}`);
-    return info;
+
+    if (result.error) {
+      throw new Error(result.error.message);
+    }
+
+    console.log("Email sent successfully:", result.data?.id);
+    return result;
   } catch (error) {
     console.error("Email sending failed:", error.message);
     throw error;
