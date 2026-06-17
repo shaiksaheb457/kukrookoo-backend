@@ -1,4 +1,8 @@
 const nodemailer = require("nodemailer");
+const dns = require("dns");
+
+// Force Node to prefer IPv4 resolution globally for this process
+dns.setDefaultResultOrder("ipv4first");
 
 const sendEmail = async ({ to, subject, html }) => {
   const transporter = nodemailer.createTransport({
@@ -9,9 +13,9 @@ const sendEmail = async ({ to, subject, html }) => {
       user: process.env.EMAIL_USER,
       pass: process.env.EMAIL_PASS,
     },
-    connectionTimeout: 10000, // 10s to establish connection
-    greetingTimeout: 10000,   // 10s to receive greeting after connecting
-    socketTimeout: 10000,     // 10s of inactivity before giving up
+    connectionTimeout: 10000,
+    greetingTimeout: 10000,
+    socketTimeout: 10000,
   });
 
   try {
